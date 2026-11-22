@@ -7,14 +7,6 @@ ORG_DESCRIPTION="5LIFE GEO - 1B Supply"
 
 [[CURRENCIES]]
 code="5LIFE"
-issuer="GC7A6N7MAOU52RVRCIO7BADA24CHKYVG77IOBXNAGU2UVM7P2S3KDSMT"
-display_decimals=7
-name="5LIFE Token"
-desc="5LIFE GEO 1B Supply"
-image="https://fivelifegeo.github.io/logo.png"
-
-[[CURRENCIES]]
-code="5LIFE"
 issuer="GD3OIJAV677OHQDZ25QXVDMWAD3AKJ6CGBMXKXZLGTBVUFC4TN2EX2BS"
 display_decimals=7
 name="5LIFE Token"
