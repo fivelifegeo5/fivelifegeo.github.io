@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>5LIFE PAY - TESTNET</title>
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/12.1.0/stellar-sdk.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+body{font-family:Arial;background:#fff8e1;padding:12px;max-width:480px;margin:auto}
+.card{background:#fff;padding:16px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.1);margin-top:10px}
+.btn{width:100%;padding:13px;background:#6f42c1;color:#fff;border:0;border-radius:12px;margin-top:10px;font-weight:800}
+.btn2{background:#222}.btn3{background:#00a86b}
+.input{width:100%;padding:11px;border:1px solid #ddd;border-radius:10px;margin-top:8px}
+.badge{background:#efe6ff;padding:8px;border-radius:8px;margin-top:8px;font-size:12px;word-break:break-all}
+</style>
+</head><body>
+<h2>5LIFE PAY 💜 TESTNET</h2>
+<small>Issuer: GD3OIJAV677OHQDZ25QXVDMWAD3AKJ6CGBMXKXZLGTBVUFC4TN2EX2BS<br>Owner: @geovaniepascual</small>
+
+<div class="card">
+<div class="badge">Rate: <b>1 Pi = 555 5LIFE</b></div>
+<div class="badge">Pi Wallet (on-chain): <b id="piBal">0 - Need Trustline</b></div>
+<div class="badge">Pay Wallet (Zero-fee): <b id="payBal">0 5LIFE</b></div>
+<p id="user" style="font-weight:bold"></p>
+<button class="btn" onclick="login()">1. Connect Pi Testnet</button>
+<button class="btn btn2" onclick="addTrust()">2. Add 5LIFE Trustline</button>
+<button class="btn" onclick="topup()">3. Top-up 1 Pi = 555 5LIFE</button>
+</div>
+
+<div class="card">
+<b>Send 5LIFE (Pay to Pay = Zero Fee)</b>
+<input id="to" class="input" placeholder="@username or G... wallet">
+<input id="amt" class="input" type="number" placeholder="Amount">
+<button class="btn" onclick="scan()">📷 Scan QR</button>
+<div id="reader"></div>
+<button class="btn btn3" onclick="send()">Send 5LIFE</button>
+<small>Pag nasa Pay Wallet na, zero fee na sa Store mo. Direct Top-up = isang Pi fee lang.</small>
+</div>
+
+<script>
+const ISSUER="GD3OIJAV677OHQDZ25QXVDMWAD3AKJ6CGBMXKXZLGTBVUFC4TN2EX2BS", ASSET="5LIFE", HORIZON="https://api.testnet.minepi.com", PASS="Pi Testnet", RATE=555;
+const Pi=window.Pi; Pi.init({version:"2.0",sandbox:true});
+let pay=parseFloat(localStorage.getItem('pay_test')||'0'); 
+document.getElementById('payBal').innerText=pay+" 5LIFE";
+function save(){localStorage.setItem('pay_test',pay); document.getElementById('payBal').innerText=pay+" 5LIFE";}
+async function login(){const a=await Pi.authenticate(['username','payments'],()=>{}); document.getElementById('user').innerText="@"+a.user.username;}
+async function addTrust(){const s=prompt("Paste Secret S... Testnet (di sine-save):"); if(!s||!s.startsWith('S'))return; try{const kp=StellarSdk.Keypair.fromSecret(s); const server=new StellarSdk.Horizon.Server(HORIZON); const acc=await server.loadAccount(kp.publicKey()); const asset=new StellarSdk.Asset(ASSET,ISSUER); const tx=new StellarSdk.TransactionBuilder(acc,{fee:"100000",networkPassphrase:PASS}).addOperation(StellarSdk.Operation.changeTrust({asset})).setTimeout(60).build(); tx.sign(kp); const r=await server.submitTransaction(tx); alert("✅ Trustline Added! Hash: "+r.hash); document.getElementById('piBal').innerText="Added - Ready!";}catch(e){alert("Error: "+(e.response?JSON.stringify(e.response.data):e.message));}}
+async function topup(){await Pi.createPayment({amount:1,memo:`Top-up ${RATE} 5LIFE Testnet`,metadata:{rate:RATE}},{
+onReadyForServerApproval:()=>{}, onReadyForServerCompletion:()=>{pay+=RATE; save(); alert(`✅ +${RATE} 5LIFE sa Pay Wallet! Zero fee na.`);}});}
+function scan(){const q=new Html5Qrcode("reader"); q.start({facingMode:"environment"},{fps:10,qrbox:250},t=>{document.getElementById('to').value=t; q.stop();});}
+function send(){const to=document.getElementById('to').value, amt=parseFloat(document.getElementById('amt').value); if(!to||!amt)return alert("Kulang"); if(amt>pay)return alert("Kulang balance"); pay-=amt; save(); alert(`✅ Sent ${amt} 5LIFE kay ${to} - ZERO FEE`);}
+</script></body></html>
